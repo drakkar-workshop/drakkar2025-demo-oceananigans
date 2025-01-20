@@ -27,10 +27,17 @@
 # - CairoMakie: visualization package to visualize the results
 
 using Pkg
-pkg"add Oceananigans#main, ClimaOcean#main, OrthogonalSphericalShellGrids, CairoMakie"
+Pkg.activate("./")
+pkg"add Oceananigans#ss/for-drakkar" 
+pkg"add ClimaOcean#main"
+pkg"add OrthogonalSphericalShellGrids"
+pkg"add CairoMakie"
+pkg"add CFTime"
+
 using ClimaOcean
 using Oceananigans
 using Oceananigans.Units
+using Oceananigans.Grids
 using OrthogonalSphericalShellGrids
 using CFTime
 using Dates
@@ -65,14 +72,15 @@ arch = CPU()
 
 depth = 5000meters
 Nz    = 10
-h     = 3 # e-folding length of the exponential
+h     = 3 
 
 r_faces = ClimaOcean.exponential_z_faces(; Nz, h, depth)
 
-# To use z-star coordinates we can do `z_faces = ZStarVerticalCoordinate(r_faces)`, 
-# but we will stick with z coordinates for now.
+# To use z-star coordinates we need to use a `z_faces = MutableVerticalDiscetization(r_faces)`, as opposed to a to 
+# a `StaticVerticalDiscretization`, to set up the data structures required for a free-surface 
+# following vertical coordinate. 
 
-z_faces = r_faces 
+z_faces = MutableVerticalDiscretization(r_faces)
 
 # ## Building a grid
 
@@ -109,11 +117,7 @@ xC, yC, zC = cartesian_nodes
 λ = Oceananigans.Grids.λnodes(grid, Center(), Center())
 
 fig = Figure(size=(1200, 300))
-axS = Axis3(fig[1, 1]; aspect=(1, 1, 1), azimuth = 7, height=300)
-axC = Axis(fig[1, 2])
-surface!(axS, xC .* 0.99, yC .* 0.99, zC .* 0.99)
-wireframe!(axS, xC, yC, zC, color = :blue)    
-
+axC = Axis(fig[1, 1])
 [vlines!(axC, i, color = :green, linewidth=0.5) for i in 1:5:Nx]
 [hlines!(axC, j, color = :green, linewidth=0.5) for j in 1:5:Ny]
 contour!(axC, φ, levels=-80:10:90, color=:blue, linewidth=0.8)
@@ -126,9 +130,9 @@ display(fig)
 # ## Adding a bathymetry to the grid
 #
 # ClimaOcean provides a nifty utility to regrid the bathymetry over the grid, the `regrid_bathymetry` function.
-# By default ClimaOcean downloads the ETOPO22 bathymetry at 1/60ᵒ resolution (459 MB) from the NOAA servers.
+# By default ClimaOcean downloads the ETOPO_2022 bathymetry at 1/60ᵒ resolution (459 MB) from the NOAA servers.
 # However, since the servers are quite busy, I have uploaded a lower resolution version file to dropbox.
-# !!! NOTE: This will download the ETOPO22 bathymetry, so make sure that you have an internet connection
+# !!! NOTE: This will download the ETOPO_2022 bathymetry, so make sure that you have an internet connection
 
 url = "https://www.dropbox.com/scl/fi/zy1cu64ybn93l67rjgiq0/Downsampled_ETOPO_2022.nc?rlkey=5upqvoxrnljj205amqf663vcw&st=ou8b32tt&dl=0"
 filename = isfile("Downsampled_ETOPO_2022.nc") ? "Downsampled_ETOPO_2022.nc" : download(url, "Downsampled_ETOPO_2022.nc")
@@ -158,20 +162,18 @@ free_surface = SplitExplicitFreeSurface(grid; substeps=30)
 
 # ### Physical parameterizations
 #
-# We add an advective GM parameterization for mesoscale eddies and a very simple vertical mixing scheme.
+# We add a GM parameterization for mesoscale eddies and a CATKE vertical mixing scheme.
 # All the closures require passing also the desired floating point precision of the model
 
 using Oceananigans.TurbulenceClosures: IsopycnalSkewSymmetricDiffusivity, 
                                        ExplicitTimeDiscretization, 
                                        DiffusiveFormulation
 
+using Oceananigans.TurbulenceClosures.TKEBasedVerticalDiffusivities: CATKEVerticalDiffusivity
+
 numerical_closure = HorizontalScalarDiffusivity(ν=5e3)
 eddy_closure = IsopycnalSkewSymmetricDiffusivity(κ_skew=1e3, κ_symmetric=1e3, skew_flux_formulation=DiffusiveFormulation())
-vertical_mixing = ConvectiveAdjustmentVerticalDiffusivity(Float64;
-                                                          convective_κz=5, 
-                                                          convective_νz=5, 
-                                                          background_κz=3e-5, 
-                                                          background_νz=1e-3)
+vertical_mixing = CATKEVerticalDiffusivity() 
 
 closure = (eddy_closure, numerical_closure, vertical_mixing) 
 
@@ -215,12 +217,11 @@ ocean = ocean_simulation(grid;
 # We use ECCO climatology to initialize the temperature and salinity fields. 
 # We can use the metadata we defined earlier to set the initial conditions. 
 
-#=
 u_velocity   = ECCOMetadata(:u_velocity,   dates=dates[1], dir="./")
 v_velocity   = ECCOMetadata(:v_velocity,   dates=dates[1], dir="./")
 surf_height  = ECCOMetadata(:free_surface, dates=dates[1], dir="./")
-=#
-set!(ocean.model, T=temperature[1], S=salinity[1]) 
+
+set!(ocean.model, T=temperature[1], S=salinity[1]) #, u=u_velocity, v=v_velocity, η=surf_height) 
 
 # ### Visualizing the initial conditions
 # 
@@ -279,15 +280,16 @@ radiation = nothing # Radiation(ocean_albedo = LatitudeDependentAlbedo())
 # For the moment, the sea-ice component is not implemented, so we will only couple the ocean to the atmosphere.
 # Instead of the sea ice model, we limit the temperature of the ocean to the freezing temperature.
 
+similarity_theory = SimilarityTheoryTurbulentFluxes(grid; maxiter=5)
 sea_ice = ClimaOcean.FreezingLimitedOceanTemperature()
-earth_model = OceanSeaIceModel(ocean, sea_ice; atmosphere, radiation)
+earth_model = OceanSeaIceModel(ocean, sea_ice; atmosphere, radiation, similarity_theory)
 
 # ### Building the simulation
 #
 # We build the simulation out of the `earth_model` as we would do for any other Oceananigans model.
 # We start with a smallish time-step (5 minutes) and run only for 2 days to dissipate initialization shocks.
 
-earth = Simulation(earth_model; Δt=5minutes, stop_time=2days)
+earth = Simulation(earth_model; Δt=30minutes, stop_time=30days)
 
 # ### Adding some diagnostics
 #
@@ -348,18 +350,16 @@ add_callback!(earth, progress, IterationInterval(10))
 
 run!(earth)
 
-earth.Δt = 30minutes
-earth.stop_time = 200days
-
-run!(earth)
-
 # ## Visualizing the results
 #
 # We can visualize the results using CairoMakie. We record a video of surface variables and fluxes.
 # To load the data we can use Oceananigans' `FieldTimeSeries` object.
 
 using JLD2
+using Oceananigans
 using Oceananigans.Grids: halo_size
+using CairoMakie 
+using Statistics: mean
 
 file  = jldopen("free_surface.jld2")
 iters = keys(file["timeseries/t"]) 
@@ -428,8 +428,9 @@ fig = Figure(size = (1200, 400))
 axT = Axis(fig[1, 1], title="Internal temperature structure ᵒC")
 axS = Axis(fig[1, 2], title="Internal salinity structure psu")
 
-contourf!(axT, 1:48, z, interior(mean(ocean.model.tracers.T, dims=1), 1, :, :), colormap=:magma)
-contourf!(axS, 1:48, z, interior(mean(ocean.model.tracers.S, dims=1), 1, :, :), colormap=:haline)
+contourf!(axT, 1:128, z, interior(mean(ocean.model.tracers.T, dims=1), 1, :, :), colormap=:magma)
+contourf!(axS, 1:128, z, interior(mean(ocean.model.tracers.S, dims=1), 1, :, :), colormap=:haline)
+display(fig)
 
 # # Running a high-resolution simulation
 #

@@ -7,6 +7,10 @@
 # generates temperatures that correspond to higher density (the maximum density of fresh water is at 4ᵒ C) and
 # the mixed water starts to sink.
 
+
+using Pkg
+pkg"add Oceananigans#ss/for-drakkar, SeawaterPolynomials, CairoMakie"
+
 using Oceananigans
 using Oceananigans.Models: seawater_density
 using SeawaterPolynomials: TEOS10EquationOfState
@@ -93,13 +97,11 @@ run!(simulation)
 #
 # Let's use Makie to visualize the density and temperature fields in the x-z plane.
 
-using GLMakie
+using CairoMakie
 using Printf
 
-filename = "cabbeling.jld2"
-
-ρt = FieldTimeSeries(filename, "ρ")
-Tt = FieldTimeSeries(filename, "T")
+ρt = FieldTimeSeries("cabbeling.jld2", "ρ")
+Tt = FieldTimeSeries("cabbeling.jld2", "T")
 
 Nt = length(ρt)
 Nx = size(ρt, 1)
