@@ -1,21 +1,21 @@
 # Drakkar 2025 Oceananigans / ClimaOcean 
 
-This repository contains the material used for the Oceananigans/ClimaOcean demonstration and hands-on-session @ Drakkar 2025 https://drakkar2025.sciencesconf.org
+This repository contains the material for the Oceananigans/ClimaOcean demonstration and hands-on-session @ Drakkar 2025 https://drakkar2025.sciencesconf.org
 
 ## Jupyter notebooks
 
-The repository contains three different notebooks that will demonstrate the capabilities of ClimaOcean and Oceananigans.
+There are three different notebooks that demonstrate the capabilities of ClimaOcean and Oceananigans.
 
-- _**cabbeling.ipynb**_ shows how to use Oceananigans' `NonhydrostaticModel` to solve the Boussiesq Navier-Stokes equations in a two-dimensional x-z domain where density is calculated using the `TEOS10` equation of state.
+- _**cabbeling.ipynb**_ shows how to use Oceananigans' `NonhydrostaticModel` to solve the Boussinesq Navier-Stokes equations in a two-dimensional x-z domain where density is calculated using the [`TEOS10`](https://www.teos-10.org) equation of state.
 
-- _**baroclinic_adjustment.ipynb**_ is an example adapted from the [Oceananigans repository](https://github.com/CliMA/Oceananigans.jl/blob/main/examples/baroclinic_adjustment.jl). It shows how to use the `HydrostaticFreeSurfaceModel` to solve the Hydrostatic approximation of the Boussinesq Navier Stokes equations with a free surface, also known as the **Primitive equations**, in a simplified baroclinic instability test case.
+- _**baroclinic_adjustment.ipynb**_ is an example adapted from the [Oceananigans documentation](https://clima.github.io/OceananigansDocumentation/stable/literated/baroclinic_adjustment/) that showcases how to use the `HydrostaticFreeSurfaceModel` to solve the hydrostatic approximation of the Boussinesq Navier Stokes equations with a free surface, also known as the **Primitive equations**, in a simplified baroclinic instability test case.
 
-- _**global_ocean_simulation.ipynb**_ shows how to set up a full-fledged global ocean simulation. It leverages [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl) and [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl) to run on a tripolar grid with a realistic bathymetry, initial conditions from ECCO climatology, and (possibly) a realistic atmosphere from JRA55 reanalysis data. While the resolution is low to allow running on a laptop, if a CUDA-enabled GPU is available, it is always possible to leverage it to increase the resolution and see eddy activity develop.
+- _**global_ocean_simulation.ipynb**_ shows how to set up a fully-fledged global ocean simulation. It leverages [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl) and [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl) to run the simulation on a tripolar grid with a realistic bathymetry, initial conditions from ECCO climatology, and (possibly) a realistic atmosphere from JRA55 reanalysis data. While the resolution is low to allow running on a laptop, if a CUDA-enabled GPU is available, it is always possible to leverage it to increase the resolution and see eddy activity develop.
 
 ---
 _**NOTE:**_
 
-The notebooks run comfortably on Windows / Linux / Mac machines. However, to exploit the real power of Oceananigans / ClimaOcean, it is recommended to obtain GPU access before the workshop to test the simulations on GPUs. At the moment only CUDA-enabled GPUs (NVIDIA) are compatible with Oceananigans (i.e., AMD and Intel GPUs will not work).
+The notebooks run comfortably on Windows / Linux / Mac machines. However, to exploit the real power of Oceananigans / ClimaOcean, it is recommended to obtain GPU access before the workshop to test the simulations on GPUs. At the moment only CUDA-enabled GPUs (NVIDIA) are compatible with Oceananigans; (i.e., AMD and Intel GPUs will not work).
 
 ---
 
@@ -25,7 +25,7 @@ Oceananigans.jl and ClimaOcean.jl are natively written in the [Julia](https://do
 
 To download and install Julia for your system visit the [Julia download website](https://julialang.org/downloads/) (easy option) or follow the instructions to build Julia from source in the Julia [github repository](https://github.com/JuliaLang/julia) (a tad more difficult).
 
-Once julia is downloaded and installed, it is possible to access the Julia interactive session or [REPL](https://docs.julialang.org/en/v1/stdlib/REPL/#The-Julia-REPL) through a terminal
+Once Julia is installed, we can access the Julia interactive session or [REPL](https://docs.julialang.org/en/v1/stdlib/REPL/#The-Julia-REPL) through a terminal
 ```julia
 $ julia
                _
@@ -43,7 +43,7 @@ or by opening the downloaded julia binary.
 
 ## Installing packages
 
-The julia language comes with a native Package manager (Pkg) that allows downloading and installing registered Julia Packages directly through the REPL
+Julia comes with a native Package manager (Pkg) that allows downloading and installing registered Julia Packages directly through the REPL.
 
 The only package that needs to be installed is the [IJulia.jl](https://github.com/JuliaLang/IJulia.jl) package, that allows installing Julia kernels for usage in jupyter notebooks.
 
@@ -69,7 +69,7 @@ All other packages will be installed using Pkg direcly in the notebooks. These a
 - [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl): a gridding package to generate grids
 - [CairoMakie.jl](https://github.com/MakieOrg/Makie.jl/tree/master/CairoMakie): the native Julia package for plotting and visualization
 
-# Content of the repository
+# Contents of the repository
 
 The notebooks (in the `notebook` folder) can be executed by launching jupyter notebook via command line:  
 `% jupyter notebook`  
