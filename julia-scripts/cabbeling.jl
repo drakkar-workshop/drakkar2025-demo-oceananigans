@@ -7,19 +7,23 @@
 # generates temperatures that correspond to higher density (the maximum density of fresh water is at 4ᵒ C) and
 # the mixed water starts to sink.
 
-
 using Pkg
-pkg"add Oceananigans#ss/for-drakkar, SeawaterPolynomials, CairoMakie"
+pkg"add Oceananigans#ss/for-drakkar, SeawaterPolynomials, CairoMakie, FileIO"
 
 using Oceananigans
 using Oceananigans.Models: seawater_density
 using SeawaterPolynomials: TEOS10EquationOfState
 
+# We run this example on a CPU.
+# To run it on a GPU, replace `CPU()` with `GPU()` and crank up the resolution!
+
+arch = CPU()
+
 # We start with defining a 2D grid in the x-z plane with 512x256 grid points.
 # This is not enough to resolve the Kolmogorov scale so we are in an LES regime
 
 Nx, Ny = 256, 256
-grid = RectilinearGrid(CPU(),
+grid = RectilinearGrid(arch,
                        size = (Nx, Ny),
                        x = (0, 0.5),
                        z = (-0.5, 0.0),
@@ -44,21 +48,25 @@ model = NonhydrostaticModel(; grid,
                               advection=WENO(order=7),
                               tracers=:T)
             
-# Setting the initial conditions to an unstable equilibrium with hot water above cold water.
+# Setting the initial conditions to an unstable equilibrium with hot water above (and below) cold water.
 # and some random perturbations in the velocity field to trigger the instability.
+# To give it a nice spin, let's initialize the temperature field with the Drakkar Ocean logo.
 
 T₁, T₂ = 1, 7.55 # ᵒC
-Tᵢ = (x, z) -> z <= -0.25 ? T₁ : T₂
 Ξᵢ = (x, z) -> 1e-4 * randn()
 
 using FileIO
 
-download("https://aircentre.github.io/JuliaEO25/img/logo-juliaeo-25.png", "logo-juliaeo-25.png")
+download("https://drakkar2025.sciencesconf.org/data/header/DrakkarOcean_1.png", "logo-drakkar.png")
 
-img   = FileIO.load("logo-juliaeo-25.png")
+img   = FileIO.load("logo-drakkar.png")
 alpha = getproperty.(img, :alpha) .|> Float64
 alpha = reverse(alpha', dims=2)
-alpha = alpha[1:8:end-40, 1:4:end-20]
+alpha = alpha[1:2:end, 1:2:end]
+borderx = zeros((256 - size(alpha, 1)) ÷ 2, size(alpha, 2))
+alpha   = vcat(borderx, alpha, borderx)
+bordery = zeros(size(alpha, 1), (256 - size(alpha, 2)) ÷ 2)
+alpha   = hcat(bordery, alpha, bordery)
 
 Tᵢ = [ifelse(alpha[i, j] == 0, T₁, T₂) for i in 1:Nx, j in 1:Ny]
 
@@ -76,6 +84,10 @@ function progress(sim)
 end
 
 add_callback!(simulation, progress, IterationInterval(10))
+
+# We use a variable time-stepping to make sure we don't overshoot the CFL condition.
+
+conjure_time_step_wizard!(simulation, cfl=0.7)
 
 # Let's set an output writer to collect the density and temperature fields every second.
 
@@ -98,7 +110,6 @@ run!(simulation)
 # Let's use Makie to visualize the density and temperature fields in the x-z plane.
 
 using CairoMakie
-using Printf
 
 ρt = FieldTimeSeries("cabbeling.jld2", "ρ")
 Tt = FieldTimeSeries("cabbeling.jld2", "T")
@@ -108,26 +119,28 @@ Nx = size(ρt, 1)
 
 i = Int(Nx / 2)
 n = Observable(length(ρt.times)) 
-ρ = @lift interior(ρt[$n], i+1:Nx, 1, :)
-T = @lift interior(Tt[$n], 1:i,    1, :)
+ρ = @lift interior(ρt[$n], :, 1, :)
+T = @lift interior(Tt[$n], :, 1, :)
 x, y, z = nodes(ρt)
 
-set_theme!(Theme(fontsize=18))
-fig = Figure(size=(1000, 800))
+set_theme!(Theme(fontsize=12))
+fig = Figure(size=(1000, 500))
 
 ρrange = (minimum(ρt[1]), maximum(ρt))
 
-ax = Axis(fig[1, 2], aspect=1.2, xlabel="x (m)", ylabel="z (m)")
-xlims!(ax, 0, 0.5)
-ylims!(ax, -0.5, 0)
+axT = Axis(fig[1, 2], xlabel="x (m)", ylabel="z (m)")
+xlims!(axT,  0, 0.5)
+ylims!(axT, -0.5, 0)
 
-hm = heatmap!(ax, x[1:i], z, T, colormap=:magma, colorrange=(1.55, 7))
+axρ = Axis(fig[1, 3], xlabel="x (m)", ylabel="z (m)")
+xlims!(axρ,  0, 0.5)
+ylims!(axρ, -0.5, 0)
+
+hm = heatmap!(axT, x, z, T, colormap=:magma, colorrange=(1.55, 7))
 Colorbar(fig[1, 1], hm, label="Temperature (ᵒC)", flipaxis=false)
 
-hm = heatmap!(ax, x[i+1:end], z, ρ, colormap=Makie.Reverse(:grays), colorrange=ρrange)
-Colorbar(fig[1, 3], hm, label="Density (kg m⁻³)")
-
-@show title = @sprintf("t = %.3f seconds", ρt.times[n[]])
+hm = heatmap!(axρ, x, z, ρ, colormap=Makie.Reverse(:grays), colorrange=ρrange)
+Colorbar(fig[1, 4], hm, label="Density (kg m⁻³)")
 
 record(fig, "cabbeling_2d.mp4", 1:Nt, framerate=5) do nn
     @info "Drawing frame $nn of $Nt..."
