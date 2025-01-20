@@ -1,29 +1,32 @@
 # Drakkar 2025 Oceananigans / ClimaOcean 
 
-This repository contains the material for the Oceananigans/ClimaOcean demonstration and hands-on-session @ Drakkar 2025 https://drakkar2025.sciencesconf.org
+This repository contains materials for the Oceananigans/ClimaOcean demonstration and hands-on session at [Drakkar 2025](https://drakkar2025.sciencesconf.org).
 
-## Jupyter notebooks
+## Jupyter Notebooks
 
-There are three different notebooks that demonstrate the capabilities of ClimaOcean and Oceananigans.
+The repository includes three notebooks (and respective Julia scripts) showcasing the capabilities of ClimaOcean and Oceananigans:
 
-- _**cabbeling.ipynb**_ shows how to use Oceananigans' `NonhydrostaticModel` to solve the Boussinesq Navier-Stokes equations in a two-dimensional x-z domain where density is calculated using the [`TEOS10`](https://www.teos-10.org) equation of state.
+1. **`cabbeling.ipynb`**  
+   Demonstrates how to use Oceananigans' `NonhydrostaticModel` to solve the Boussinesq Navier-Stokes equations in a 2D x-z domain, with density computed using the `TEOS10` equation of state.
 
-- _**baroclinic_adjustment.ipynb**_ is an example adapted from the [Oceananigans documentation](https://clima.github.io/OceananigansDocumentation/stable/literated/baroclinic_adjustment/) that showcases how to use the `HydrostaticFreeSurfaceModel` to solve the hydrostatic approximation of the Boussinesq Navier Stokes equations with a free surface, also known as the **Primitive equations**, in a simplified baroclinic instability test case.
+2. **`baroclinic_adjustment.ipynb`**  
+   An adapted example from the [Oceananigans repository](https://github.com/CliMA/Oceananigans.jl/blob/main/examples/baroclinic_adjustment.jl). It illustrates the use of the `HydrostaticFreeSurfaceModel` to solve the hydrostatic approximation of the Boussinesq Navier-Stokes equations with a free surface (also known as the **Primitive Equations**) in a simplified baroclinic instability test case.
 
-- _**global_ocean_simulation.ipynb**_ shows how to set up a fully-fledged global ocean simulation. It leverages [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl) and [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl) to run the simulation on a tripolar grid with a realistic bathymetry, initial conditions from ECCO climatology, and (possibly) a realistic atmosphere from JRA55 reanalysis data. While the resolution is low to allow running on a laptop, if a CUDA-enabled GPU is available, it is always possible to leverage it to increase the resolution and see eddy activity develop.
+3. **`global_ocean_simulation.ipynb`**  
+   Explains how to set up a global ocean simulation using [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl) and [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl). The simulation employs a tripolar grid with realistic bathymetry, initial conditions from ECCO climatology, and optional atmospheric data from the JRA55 reanalysis. The provided low-resolution setup runs on a laptop but can leverage CUDA-enabled GPUs for higher resolution and eddy activity development.
 
 ---
-_**NOTE:**_
+ _**NOTE:**_
 
-The notebooks run comfortably on Windows / Linux / Mac machines. However, to exploit the real power of Oceananigans / ClimaOcean, it is recommended to obtain GPU access before the workshop to test the simulations on GPUs. At the moment only CUDA-enabled GPUs (NVIDIA) are compatible with Oceananigans (i.e., AMD and Intel GPUs will not work).
+The notebooks run comfortably on Windows / Linux / Mac machines. However, to fully utilize the real power of Oceananigans / ClimaOcean, it is recommended to obtain GPU access before the workshop to test the simulations on GPUs. At the moment only CUDA-enabled GPUs (NVIDIA) are compatible with Oceananigans (i.e., AMD and Intel GPUs will not work).
 
 ---
 
 # Getting Started with <img src="https://julialang.org/assets/infra/logo.svg" alt="drawing" width="80" />
 
-Oceananigans.jl and ClimaOcean.jl are natively written in the [Julia](https://docs.julialang.org/en/v1/) language, so users should be familiar with the Julia syntax.
+Oceananigans.jl and ClimaOcean.jl are natively developed in the [Julia](https://docs.julialang.org/en/v1/) programming language. Therefore, users should be familiar with Julia syntax.
 
-To download and install Julia for your system visit the [Julia download website](https://julialang.org/downloads/) (easy option) or follow the instructions to build Julia from source in the Julia [github repository](https://github.com/JuliaLang/julia) (a tad more difficult).
+To install Julia, visit the [official download page](https://julialang.org/downloads/) (easy option) or follow the [source build instructions](https://github.com/JuliaLang/julia) on GitHub (slightly more complicated).
 
 Once Julia is installed, we can access the Julia interactive session or [REPL](https://docs.julialang.org/en/v1/stdlib/REPL/#The-Julia-REPL) through a terminal
 ```julia
@@ -39,13 +42,13 @@ $ julia
 
 julia>
 ```
-or by opening the downloaded julia binary.
+Alternatively, execute the downloaded Julia binary directly to access a REPL.
 
 ## Installing packages
 
-Julia comes with a native Package manager (Pkg) that allows downloading and installing registered Julia Packages directly through the REPL.
+Julia includes a native package manager (Pkg) for managing dependencies directly through the REPL. 
 
-The only package that needs to be installed is the [IJulia.jl](https://github.com/JuliaLang/IJulia.jl) package, that allows installing Julia kernels for usage in jupyter notebooks.
+Start by installing the [IJulia.jl](https://github.com/JuliaLang/IJulia.jl) package, to use Julia with Jupyter notebooks:
 
 ```julia
 julia> using Pkg
@@ -53,7 +56,7 @@ julia> using Pkg
 julia> pkg"add IJulia"
 ```
 
-Once **IJulia** is installed, it is possible to customize the kernel with specific julia options, for example to install a multi-threaded kernel using 8 threads (and no optimization):
+To install a custom kernel, such as one using 8 threads:
 
 ```julia
 julia> using IJulia
@@ -61,7 +64,7 @@ julia> using IJulia
 julia> installkernel("Julia 8 threads", "--check-bounds=no", "-O0", "-t 8")
 ```
 
-All other packages will be installed using Pkg direcly in the notebooks. These are:
+All other packages will be installed using Pkg directly in the notebooks / scripts. These are:
 
 - [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl): the ocean model developed by the CliMA project 
 - [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl): a ocean-flavored fluid dynamics library
@@ -69,15 +72,16 @@ All other packages will be installed using Pkg direcly in the notebooks. These a
 - [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl): a gridding package to generate grids
 - [CairoMakie.jl](https://github.com/MakieOrg/Makie.jl/tree/master/CairoMakie): the native Julia package for plotting and visualization
 
-# Contents of the repository
-
-The notebooks (in the `notebook` folder) can be executed by launching jupyter notebook via command line:  
+# Repository Contents
+1. Notebooks
+Stored in the `notebook` folder. To run a notebook, launch Jupyter Notebook from the command line:  
 `% jupyter notebook`  
-After selecting the notebook, choose the correct kernel from the top right of the screen
+Then, select the desired notebook and choose the correct kernel on the top-right side of the screen.
 
-The `julia-scripts` folder contain the same experiments written down as Julia scripts (for those who dislike notebooks). To run them in the REPL:
+2. Julia Scrips  
+The `julia-scripts` folder contains equivalent Julia scripts for the experiments, for users that dislike notebooks and prefer running in an interactive Julia session. To execute the scripts in the Julia REPL:  
 ```julia
-% julia
+$ julia
                _
    _       _ _(_)_     |  Documentation: https://docs.julialang.org
   (_)     | (_) (_)    |
@@ -93,7 +97,7 @@ julia> include("julia-scripts/baroclinic_adjustment.jl")
 
 ### Visualization generated by the notebooks:
 
-https://github.com/user-attachments/assets/c00d47ea-4b16-42c5-b559-4f6deb24a247"
+https://github.com/user-attachments/assets/c00d47ea-4b16-42c5-b559-4f6deb24a247
 
 
 https://github.com/user-attachments/assets/1743450e-2d0a-4634-8495-fa0c72c181e4
