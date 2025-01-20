@@ -219,30 +219,12 @@ display(fig)
 #
 # We use an idealized atmosphere for this tutorial to avoid downloading the JRA55 data (~15GB).
 
-atmos_grid  = LatitudeLongitudeGrid(arch, Float32; size=(320, 650), latitude=(-90, 90), longitude=(0, 360), topology=(Periodic, Bounded, Flat))
-atmos_times = range(0, 360Oceananigans.Units.days, length=10)
-atmosphere  = PrescribedAtmosphere(atmos_grid, atmos_times)
-
-# We set up the atmosphere with an idealized temperature and wind speed that do not change in time.
-
-Tₐ(λ, φ) = 220 + cosd(φ)^2 * 80
-uₐ(λ, φ) = 10 * sind(2φ)^2
-qₐ(λ, φ) = cosd(φ) * 3e-2
-
-for t in eachindex(atmos_times)
-    set!(atmosphere.tracers.T[t],    Tₐ)
-    set!(atmosphere.tracers.q[t],    qₐ)
-    set!(atmosphere.velocities.u[t], uₐ)
-
-    Oceananigans.BoundaryConditions.fill_halo_regions!(atmosphere.tracers.T[t])
-    Oceananigans.BoundaryConditions.fill_halo_regions!(atmosphere.tracers.q[t])
-    Oceananigans.BoundaryConditions.fill_halo_regions!(atmosphere.velocities.u[t])
-end
+atmosphere  = JRA55PrescribedAtmosphere(arch; backend=JRA55NetCDFBackend(10))
 
 # If we had a realistic atmosphere we would add radiative properties, however, since we do not have 
 # downwelling radiation, we set it to nothing
 
-radiation = nothing # Radiation(ocean_albedo = LatitudeDependentAlbedo())
+radiation = Radiation(ocean_albedo = LatitudeDependentAlbedo())
 
 # ### Coupling the atmosphere to the ocean
 #
@@ -259,7 +241,7 @@ earth_model = OceanSeaIceModel(ocean, sea_ice; atmosphere, radiation, similarity
 # We build the simulation out of the `earth_model` as we would do for any other Oceananigans model.
 # We start with a smallish time-step (5 minutes) and run only for 2 days to dissipate initialization shocks.
 
-earth = Simulation(earth_model; Δt=10minutes, stop_time=30days)
+earth = Simulation(earth_model; Δt=2minutes, stop_time=2days)
 
 # ### Adding some diagnostics
 #
@@ -317,6 +299,13 @@ add_callback!(earth, progress, IterationInterval(10))
 # ### Running the simulation
 #
 # quite simply
+
+run!(earth)
+
+# Finished the two days, we increase timestep size and stop time and restart
+
+earth.stop_time = 60days
+earth.Δt = 10minutes
 
 run!(earth)
 
