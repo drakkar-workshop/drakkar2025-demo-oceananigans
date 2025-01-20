@@ -15,7 +15,7 @@ There are three different notebooks that demonstrate the capabilities of ClimaOc
 ---
 _**NOTE:**_
 
-The notebooks run comfortably on Windows / Linux / Mac machines. However, to exploit the real power of Oceananigans / ClimaOcean, it is recommended to obtain GPU access before the workshop to test the simulations on GPUs. At the moment only CUDA-enabled GPUs (NVIDIA) are compatible with Oceananigans; (i.e., AMD and Intel GPUs will not work).
+The notebooks run comfortably on Windows / Linux / Mac machines. However, to exploit the real power of Oceananigans / ClimaOcean, it is recommended to obtain GPU access before the workshop to test the simulations on GPUs. At the moment only CUDA-enabled GPUs (NVIDIA) are compatible with Oceananigans (i.e., AMD and Intel GPUs will not work).
 
 ---
 
