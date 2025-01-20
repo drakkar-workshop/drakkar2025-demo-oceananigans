@@ -79,7 +79,7 @@ r_faces = ClimaOcean.exponential_z_faces(; Nz, h, depth)
 # a `StaticVerticalDiscretization`, to set up the data structures required for a free-surface 
 # following vertical coordinate. 
 
-z_faces = MutableVerticalDiscetization(r_faces)
+z_faces = MutableVerticalDiscretization(r_faces)
 
 # ## Building a grid
 
@@ -101,7 +101,7 @@ z_faces = MutableVerticalDiscetization(r_faces)
 
 Nx = 1440 # longitudinal direction -> 1440 points is about 0.25ᵒ resolution
 Ny = 650  # meridional direction -> same thing, 48 points is about 0.25ᵒ resolution
-Nz   = length(r_faces) - 1
+Nz = length(r_faces) - 1
 grid = TripolarGrid(arch, Float64; size=(Nx, Ny, Nz), z=z_faces)
 
 # ## Adding a bathymetry to the grid
