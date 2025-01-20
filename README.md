@@ -41,26 +41,19 @@ julia>
 ```
 or by opening the downloaded julia binary.
 
-The julia language comes with a native Package manager (Pkg) that allows downloading and installing registered Julia Packages directly through the REPL by doing
+## Installing packages
+
+The julia language comes with a native Package manager (Pkg) that allows downloading and installing registered Julia Packages directly through the REPL
+
+The only package that needs to be installed is the [IJulia.jl](https://github.com/JuliaLang/IJulia.jl) package, that allows installing Julia kernels for usage in jupyter notebooks.
 
 ```julia
 julia> using Pkg
 
-julia> pkg"add MyPackage"
+julia> pkg"add IJulia"
 ```
 
-
-## Useful packages
-
-In the notebooks, we use Julia packages other than the specific fluid dynamics / ocean modeling libraries:
-- Oceananigans.jl
-- ClimaOcean.jl
-- OrthogonalSphericalShellGrids.jl
-
-#### Jupyter notebooks: [IJulia.jl](https://github.com/JuliaLang/IJulia.jl)
-
-**`IJulia.jl`** allows installing Julia kernels for usage in jupyter notebooks.
-In addition, it is possible to customize the kernel with specific julia options, for example to install a multi-threaded kernel using 8 threads (and no optimization):
+Once **IJulia** is installed, it is possible to customize the kernel with specific julia options, for example to install a multi-threaded kernel using 8 threads (and no optimization):
 
 ```julia
 julia> using IJulia
@@ -68,6 +61,9 @@ julia> using IJulia
 julia> installkernel("Julia 8 threads", "--check-bounds=no", "-O0", "-t 8")
 ```
 
-#### Plotting: [CairoMakie.jl](https://github.com/MakieOrg/Makie.jl/tree/master/CairoMakie)
+All other packages will be installed using Pkg direcly in the notebooks. These are:
 
-The native Julia plotting package for visualization
+- [Oceananigans.jl](https://github.com/CliMA/Oceananigans.jl): a ocean flavored fluid dynamics library
+- [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl): the ocean model developed by the CliMA project 
+- [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl): a gridding package to generate grids
+- [CairoMakie.jl](https://github.com/MakieOrg/Makie.jl/tree/master/CairoMakie): the native Julia package for plotting and visualization
