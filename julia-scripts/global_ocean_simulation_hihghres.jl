@@ -113,7 +113,7 @@ grid = TripolarGrid(arch, Float64; size=(Nx, Ny, Nz), z=z_faces)
 
 url = "https://www.dropbox.com/scl/fi/zy1cu64ybn93l67rjgiq0/Downsampled_ETOPO_2022.nc?rlkey=5upqvoxrnljj205amqf663vcw&st=ou8b32tt&dl=0"
 filename = isfile("Downsampled_ETOPO_2022.nc") ? "Downsampled_ETOPO_2022.nc" : download(url, "Downsampled_ETOPO_2022.nc")
-bottom_height = regrid_bathymetry(grid; minimum_depth=15, major_basins=1, filename, dir="./")
+bottom_height = regrid_bathymetry(grid; minimum_depth=10, major_basins=1, filename, dir="./")
 
 fig = Figure(size = (800, 400))
 ax  = Axis(fig[1, 1])
@@ -135,7 +135,7 @@ grid = ImmersedBoundaryGrid(grid, GridFittedBottom(bottom_height); active_cells_
 momentum_advection = WENOVectorInvariant() 
 tracer_advection   = WENO(order=7)
 
-free_surface = SplitExplicitFreeSurface(grid; substeps=50) 
+free_surface = SplitExplicitFreeSurface(grid; substeps=55) 
 
 # ### Physical parameterizations
 #
@@ -156,7 +156,7 @@ closure = vertical_mixing
 # **https://github.com/CliMA/ClimaOcean.jl/blob/main/src/DataWrangling/ECCO/README.md**.
 
 start = DateTimeProlepticGregorian(1993, 1, 1)
-stop  = DateTimeProlepticGregorian(1993, 3, 1)
+stop  = DateTimeProlepticGregorian(1993, 4, 1)
 dates = range(start, stop; step=Month(1))
 
 temperature = ECCOMetadata(:temperature; dates, dir="./")
@@ -164,10 +164,10 @@ salinity    = ECCOMetadata(:salinity;    dates, dir="./")
 
 mask  = LinearlyTaperedPolarMask(southern=(-80, -70), northern=(70, 90), z=(-100, 0))
 
-FT = nothing # ECCORestoring(temperature, grid; mask, rate=1/2days)
-FS = nothing # ECCORestoring(salinity,    grid; mask, rate=1/2days)
+FT = ECCORestoring(temperature, grid; mask, rate=1/2days)
+FS = ECCORestoring(salinity,    grid; mask, rate=1/2days)
 
-forcing = NamedTuple() # (T=FT, S=FS)
+forcing = (T=FT, S=FS)
 
 # ### Building the ocean simulation
 # 
