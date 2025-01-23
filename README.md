@@ -13,7 +13,7 @@ The repository includes three notebooks (and respective Julia scripts) showcasin
    An adapted example from the [Oceananigans repository](https://github.com/CliMA/Oceananigans.jl/blob/main/examples/baroclinic_adjustment.jl). It illustrates the use of the `HydrostaticFreeSurfaceModel` to solve the hydrostatic approximation of the Boussinesq Navier-Stokes equations with a free surface (also known as the **Primitive Equations**) in a simplified baroclinic instability test case.
 
 3. **`global_ocean_simulation.ipynb`**  
-   Explains how to set up a global ocean simulation using [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl) and [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl). The simulation employs a tripolar grid with realistic bathymetry, initial conditions from ECCO climatology, and optional atmospheric data from the JRA55 reanalysis. The provided low-resolution setup runs on a laptop but can leverage CUDA-enabled GPUs for higher resolution and eddy activity development.
+   Explains how to set up a global ocean simulation using [ClimaOcean.jl](https://github.com/CliMA/ClimaOcean.jl) and [OrthogonalSphericalShellGrids.jl](https://github.com/CliMA/OrthogonalSphericalShellGrids.jl). The simulation employs a tripolar grid with realistic bathymetry, initial conditions from ECCO climatology, and optional atmospheric data from the JRA55 reanalysis. The provided low-resolution setup runs on a laptop but can leverage CUDA-enabled GPUs for higher resolution.
 
 ---
  _**NOTE:**_
