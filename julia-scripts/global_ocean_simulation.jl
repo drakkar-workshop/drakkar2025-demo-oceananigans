@@ -254,10 +254,15 @@ for t in eachindex(atmos_times)
     Oceananigans.BoundaryConditions.fill_halo_regions!(atmosphere.velocities.u[t])
 end
 
-# If we had a realistic atmosphere we would add radiative properties, however, since we do not have 
-# downwelling radiation, we set it to nothing
+# To use the JRA55 atmosphere, comment the above lines and uncomment the following line:
 
-radiation = nothing # Radiation(ocean_albedo = LatitudeDependentAlbedo())
+# atmosphere = JRA55PrescribedAtmosphere(arch)
+
+# If we had a realistic atmosphere we would add radiative properties, however, since we do not have 
+# downwelling radiation, we set it to nothing. If using a `JRA55PrescribedAtmosphere`, uncomment the first line and comment the second
+
+# radiation = Radiation(ocean_albedo = LatitudeDependentAlbedo())
+radiation = nothing
 
 # ### Coupling the atmosphere to the ocean
 #

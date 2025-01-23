@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.7"
+julia_version = "1.10.8"
 manifest_format = "2.0"
-project_hash = "8765288d122b43945bd07fea9c9163ac5fb6a188"
+project_hash = "2b212dcb5e1ea7d01f1bc4c1ac47a5aab981473f"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -274,8 +274,6 @@ weakdeps = ["SparseArrays"]
 [[deps.ClimaOcean]]
 deps = ["Adapt", "CFTime", "CUDA", "ClimaSeaIce", "CubicSplines", "DataDeps", "Dates", "Downloads", "ImageMorphology", "JLD2", "KernelAbstractions", "MPI", "NCDatasets", "Oceananigans", "OffsetArrays", "OrthogonalSphericalShellGrids", "Printf", "Scratch", "SeawaterPolynomials", "StaticArrays", "Statistics", "SurfaceFluxes", "Thermodynamics"]
 git-tree-sha1 = "6e017a999f456258e5437d6ff19f4d32ac617f36"
-repo-rev = "main"
-repo-url = "https://github.com/CliMA/ClimaOcean.jl.git"
 uuid = "0376089a-ecfe-4b0e-a64f-9c555d74d754"
 version = "0.3.3"
 
