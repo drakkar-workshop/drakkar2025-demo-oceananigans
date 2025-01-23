@@ -177,28 +177,6 @@ vertical_mixing = CATKEVerticalDiffusivity()
 
 closure = (eddy_closure, numerical_closure, vertical_mixing) 
 
-# ### Adding a restoring term
-#
-# Since we do not have a sea ice model, we strongly restore temperature and salinity 
-# at the surface to ECCO climatology in the Polar regions 
-# To do this we need to be able to download ECCO data. This is done automatically by `ClimaOcean` 
-# provided that you have credentials to access the ECCO data. To do so, follow the instructions detailed in
-# **https://github.com/CliMA/ClimaOcean.jl/blob/main/src/DataWrangling/ECCO/README.md**.
-
-start = DateTimeProlepticGregorian(1993, 1, 1)
-stop  = DateTimeProlepticGregorian(1993, 3, 1)
-dates = range(start, stop; step=Month(1))
-
-temperature = ECCOMetadata(:temperature; dates, dir="./")
-salinity    = ECCOMetadata(:salinity;    dates, dir="./")
-
-mask  = LinearlyTaperedPolarMask(southern=(-80, -70), northern=(70, 90), z=(-100, 0))
-
-FT = nothing # ECCORestoring(temperature, grid; mask, rate=1/2days)
-FS = nothing # ECCORestoring(salinity,    grid; mask, rate=1/2days)
-
-forcing = NamedTuple() # (T=FT, S=FS)
-
 # ### Building the ocean simulation
 # 
 # ClimaOcean provides a utility to build an ocean simulation with all the necessary components. 
@@ -209,19 +187,26 @@ ocean = ocean_simulation(grid;
                          momentum_advection, 
                          tracer_advection, 
                          closure, 
-                         forcing, 
                          free_surface)
 
 # ### Initialize our Ocean
 #
 # We use ECCO climatology to initialize the temperature and salinity fields. 
 # We can use the metadata we defined earlier to set the initial conditions. 
+# To do this we need to be able to download ECCO data. This is done automatically by `ClimaOcean` 
+# provided that you have credentials to access the ECCO data. To do so, follow the instructions detailed in
+# **https://github.com/CliMA/ClimaOcean.jl/blob/main/src/DataWrangling/ECCO/README.md**.
+# If this is not possible I have prepared already inpainted files to use as initial conditions.
+# They can be donwloaded by uncommenting the following lines:
+#  download("https://www.dropbox.com/scl/fi/rcvf3ryegvxlm8gnga87l/SALT_1993_01_inpainted.jld2?rlkey=ctz2ty1yh6yksse1izd7l7ltd&st=skmv636j&dl=0", "./SALT_1993_01_inpainted.jld2")
+#  download("https://www.dropbox.com/scl/fi/3m9sw2lk149zgat6p8nil/SALT_1993_01.nc?rlkey=j1bz8zttg5n5lb1dhi547b2vh&st=ootshgfb&dl=0", "./SALT_1993_01.nc")
+#  download("https://www.dropbox.com/scl/fi/kmucmk4wb5cd1ckez6ts7/THETA_1993_01_inpainted.jld2?rlkey=v04dxmkgnrve5ob0boe6b52jp&st=wpdksush&dl=0", "./THETA_1993_01_inpainted.jld2")
+#  download("https://www.dropbox.com/scl/fi/6yzx1fvfk5b6ygyhi4sin/THETA_1993_01.nc?rlkey=euca05m5deb4kl8ylmg5nkasx&st=b4ooh3rd&dl=0", "./THETA_1993_01.nc")
 
-u_velocity   = ECCOMetadata(:u_velocity,   dates=dates[1], dir="./")
-v_velocity   = ECCOMetadata(:v_velocity,   dates=dates[1], dir="./")
-surf_height  = ECCOMetadata(:free_surface, dates=dates[1], dir="./")
+temperature = ECCOMetadata(:temperature; dir="./")
+salinity    = ECCOMetadata(:salinity;    dir="./")
 
-set!(ocean.model, T=temperature[1], S=salinity[1]) #, u=u_velocity, v=v_velocity, η=surf_height) 
+set!(ocean.model, T=temperature, S=salinity) 
 
 # ### Visualizing the initial conditions
 # 
