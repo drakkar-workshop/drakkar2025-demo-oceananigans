@@ -251,9 +251,9 @@ version = "1.1.1"
 
 [[deps.CairoMakie]]
 deps = ["CRC32c", "Cairo", "Cairo_jll", "Colors", "FileIO", "FreeType", "GeometryBasics", "LinearAlgebra", "Makie", "PrecompileTools"]
-git-tree-sha1 = "77bc0964dd77811630e6c3329536a86b3b965cba"
+git-tree-sha1 = "6d76f05dbc8b7a52deaa7cdabe901735ae7b6724"
 uuid = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-version = "0.13.0"
+version = "0.13.1"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
@@ -305,9 +305,9 @@ version = "0.4.1"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
-git-tree-sha1 = "c785dfb1b3bfddd1da557e861b919819b82bbe5b"
+git-tree-sha1 = "26ec26c98ae1453c692efded2b17e15125a5bea1"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.27.1"
+version = "3.28.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -468,9 +468,9 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[deps.DelaunayTriangulation]]
 deps = ["AdaptivePredicates", "EnumX", "ExactPredicates", "Random"]
-git-tree-sha1 = "e1371a23fd9816080c828d0ce04373857fe73d33"
+git-tree-sha1 = "5620ff4ee0084a6ab7097a27ba0c19290200b037"
 uuid = "927a84f5-c5f4-47a5-9785-b46e178433df"
-version = "1.6.3"
+version = "1.6.4"
 
 [[deps.DiffResults]]
 deps = ["StaticArraysCore"]
@@ -486,9 +486,9 @@ version = "1.15.1"
 
 [[deps.DiskArrays]]
 deps = ["LRUCache", "Mmap", "OffsetArrays"]
-git-tree-sha1 = "90fc70a19edc4e59f22b2b9b8ad46e3d116c6aa7"
+git-tree-sha1 = "4687e77a603fcd86738a92758086717cd06cdaae"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
-version = "0.4.7"
+version = "0.4.8"
 
 [[deps.Distances]]
 deps = ["LinearAlgebra", "Statistics", "StatsAPI"]
@@ -507,9 +507,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "7901a6117656e29fa2c74a58adb682f380922c47"
+git-tree-sha1 = "03aa5d44647eaec98e1920635cdfed5d5560a8b9"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.116"
+version = "0.25.117"
 
     [deps.Distributions.extensions]
     DistributionsChainRulesCoreExt = "ChainRulesCore"
@@ -716,15 +716,15 @@ uuid = "61eb1bfa-7361-4325-ad38-22787b887f55"
 version = "0.27.8"
 
 [[deps.GeoFormatTypes]]
-git-tree-sha1 = "ce573eab15760315756de2c82df7406c870c7187"
+git-tree-sha1 = "8e233d5167e63d708d41f87597433f59a0f213fe"
 uuid = "68eda718-8dee-11e9-39e7-89f7f65f511f"
-version = "0.4.3"
+version = "0.4.4"
 
 [[deps.GeoInterface]]
 deps = ["DataAPI", "Extents", "GeoFormatTypes"]
-git-tree-sha1 = "f4ee66b6b1872a4ca53303fbb51d158af1bf88d4"
+git-tree-sha1 = "294e99f19869d0b0cb71aef92f19d03649d028d5"
 uuid = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
-version = "1.4.0"
+version = "1.4.1"
 
 [[deps.GeometryBasics]]
 deps = ["EarCut_jll", "Extents", "GeoInterface", "IterTools", "LinearAlgebra", "PrecompileTools", "Random", "StaticArrays"]
@@ -1019,9 +1019,9 @@ version = "0.2.1+0"
 
 [[deps.KernelAbstractions]]
 deps = ["Adapt", "Atomix", "InteractiveUtils", "MacroTools", "PrecompileTools", "Requires", "StaticArrays", "UUIDs"]
-git-tree-sha1 = "b9a838cd3028785ac23822cded5126b3da394d1a"
+git-tree-sha1 = "019e9de20154148a4937965ec43084435e946450"
 uuid = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
-version = "0.9.31"
+version = "0.9.32"
 
     [deps.KernelAbstractions.extensions]
     EnzymeExt = "EnzymeCore"
@@ -1285,9 +1285,9 @@ version = "0.5.15"
 
 [[deps.Makie]]
 deps = ["Animations", "Base64", "CRC32c", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "Dates", "DelaunayTriangulation", "Distributions", "DocStringExtensions", "Downloads", "FFMPEG_jll", "FileIO", "FilePaths", "FixedPointNumbers", "Format", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageBase", "ImageIO", "InteractiveUtils", "Interpolations", "IntervalSets", "InverseFunctions", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MacroTools", "MakieCore", "Markdown", "MathTeXEngine", "Observables", "OffsetArrays", "PNGFiles", "Packing", "PlotUtils", "PolygonOps", "PrecompileTools", "Printf", "REPL", "Random", "RelocatableFolders", "Scratch", "ShaderAbstractions", "Showoff", "SignedDistanceFields", "SparseArrays", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "TriplotBase", "UnicodeFun", "Unitful"]
-git-tree-sha1 = "021b6b64b68f6ee09fb35a1528a2b5a7f48ac00c"
+git-tree-sha1 = "9680336a5b67f9f9f6eaa018f426043a8cd68200"
 uuid = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-version = "0.22.0"
+version = "0.22.1"
 
 [[deps.MakieCore]]
 deps = ["ColorTypes", "GeometryBasics", "IntervalSets", "Observables"]

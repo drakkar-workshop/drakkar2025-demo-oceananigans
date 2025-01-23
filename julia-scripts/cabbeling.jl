@@ -8,7 +8,10 @@
 # the mixed water starts to sink.
 
 using Pkg
-pkg"add Oceananigans#ss/for-drakkar, SeawaterPolynomials, CairoMakie, FileIO"
+pkg"add Oceananigans#ss/for-drakkar"
+pkg"add SeawaterPolynomials"
+pkg"add CairoMakie"
+pkg"add FileIO"
 
 using Oceananigans
 using Oceananigans.Models: seawater_density
@@ -146,3 +149,4 @@ record(fig, "cabbeling_2d.mp4", 1:Nt, framerate=5) do nn
     @info "Drawing frame $nn of $Nt..."
     n[] = nn
 end
+

@@ -29,7 +29,7 @@
 using Pkg
 Pkg.activate("./")
 pkg"add Oceananigans#ss/for-drakkar" 
-pkg"add ClimaOcean#main"
+pkg"add ClimaOcean@0.3.3"
 pkg"add OrthogonalSphericalShellGrids"
 pkg"add CairoMakie"
 pkg"add CFTime"
