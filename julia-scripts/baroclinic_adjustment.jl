@@ -7,11 +7,9 @@
 #
 # First let's make sure we have all required packages installed.
 
-# ```julia
-# using Pkg
-# pkg"add Oceananigans, CairoMakie"
-# ```
-
+using Pkg
+pkg"add Oceananigans#ss/for-drakkar"
+pkg"CairoMakie"
 using Oceananigans
 using Oceananigans.Units
 
