@@ -29,7 +29,7 @@
 using Pkg
 Pkg.activate("./")
 pkg"add Oceananigans#ss/for-drakkar" 
-pkg"add ClimaOcean#ss/for-drakkar"
+pkg"add ClimaOcean@0.3.3"
 pkg"add OrthogonalSphericalShellGrids"
 pkg"add CairoMakie"
 pkg"add CFTime"
@@ -37,6 +37,7 @@ pkg"add CFTime"
 using ClimaOcean
 using Oceananigans
 using Oceananigans.Units
+using Oceananigans.Grids
 using OrthogonalSphericalShellGrids
 using CFTime
 using Dates
@@ -102,7 +103,7 @@ z_faces = MutableVerticalDiscretization(r_faces)
 Nx = 1440 # longitudinal direction -> 1440 points is about 0.25ᵒ resolution
 Ny = 650  # meridional direction -> same thing, 48 points is about 0.25ᵒ resolution
 Nz = length(r_faces) - 1
-grid = TripolarGrid(arch, Float64; size=(Nx, Ny, Nz), z=z_faces)
+grid = TripolarGrid(arch, Float64; size=(Nx, Ny, Nz), z=z_faces, halo=(7, 7, 4))
 
 # ## Adding a bathymetry to the grid
 #
@@ -147,28 +148,6 @@ using Oceananigans.TurbulenceClosures.TKEBasedVerticalDiffusivities: CATKEVertic
 vertical_mixing = CATKEVerticalDiffusivity() 
 closure = vertical_mixing
 
-# ### Adding a restoring term
-#
-# Since we do not have a sea ice model, we strongly restore temperature and salinity 
-# at the surface to ECCO climatology in the Polar regions 
-# To do this we need to be able to download ECCO data. This is done automatically by `ClimaOcean` 
-# provided that you have credentials to access the ECCO data. To do so, follow the instructions detailed in
-# **https://github.com/CliMA/ClimaOcean.jl/blob/main/src/DataWrangling/ECCO/README.md**.
-
-start = DateTimeProlepticGregorian(1993, 1, 1)
-stop  = DateTimeProlepticGregorian(1993, 4, 1)
-dates = range(start, stop; step=Month(1))
-
-temperature = ECCOMetadata(:temperature; dates, dir="./")
-salinity    = ECCOMetadata(:salinity;    dates, dir="./")
-
-mask  = LinearlyTaperedPolarMask(southern=(-80, -70), northern=(70, 90), z=(-100, 0))
-
-FT = ECCORestoring(temperature, grid; mask, rate=1/2days)
-FS = ECCORestoring(salinity,    grid; mask, rate=1/2days)
-
-forcing = (T=FT, S=FS)
-
 # ### Building the ocean simulation
 # 
 # ClimaOcean provides a utility to build an ocean simulation with all the necessary components. 
@@ -179,7 +158,6 @@ ocean = ocean_simulation(grid;
                          momentum_advection, 
                          tracer_advection, 
                          closure, 
-                         forcing, 
                          free_surface)
 
 # ### Initialize our Ocean
@@ -187,26 +165,10 @@ ocean = ocean_simulation(grid;
 # We use ECCO climatology to initialize the temperature and salinity fields. 
 # We can use the metadata we defined earlier to set the initial conditions. 
 
-u_velocity   = ECCOMetadata(:u_velocity,   dates=dates[1], dir="./")
-v_velocity   = ECCOMetadata(:v_velocity,   dates=dates[1], dir="./")
-surf_height  = ECCOMetadata(:free_surface, dates=dates[1], dir="./")
+temperature = ECCOMetadata(:temperature; dir="./", version=ClimaOcean.ECCO.ECCO2Daily())
+salinity    = ECCOMetadata(:salinity;    dir="./", version=ClimaOcean.ECCO.ECCO2Daily())
 
-set!(ocean.model, T=temperature[1], S=salinity[1]) #, u=u_velocity, v=v_velocity, η=surf_height) 
-
-# ### Visualizing the initial conditions
-# 
-# Let's visualize the surface of our initialized ocean model
-
-fig = Figure(size = (2000, 800))
-axT = Axis(fig[1, 1])
-axS = Axis(fig[1, 2])
-
-hmT = heatmap!(axT, Array(interior(ocean.model.tracers.T, :, :, grid.Nz)), colorrange=(-1, 30), colormap=:magma)
-hmS = heatmap!(axS, Array(interior(ocean.model.tracers.S, :, :, grid.Nz)), colorrange=(28, 38), colormap=:haline)
-Colorbar(fig[0, 1], hmT, vertical=false, label="Surface temperature ᵒC")
-Colorbar(fig[0, 2], hmS, vertical=false, label="Surface salinity psu")
-
-display(fig)
+set!(ocean.model, T=temperature, S=salinity) 
 
 # # Adding an atmosphere
 #
