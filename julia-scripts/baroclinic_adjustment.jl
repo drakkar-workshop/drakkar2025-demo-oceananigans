@@ -9,7 +9,7 @@
 
 using Pkg
 pkg"add Oceananigans#ss/for-drakkar"
-pkg"CairoMakie"
+pkg"add CairoMakie"
 using Oceananigans
 using Oceananigans.Units
 
