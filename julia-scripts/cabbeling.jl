@@ -8,6 +8,7 @@
 # the mixed water starts to sink.
 
 using Pkg
+Pkg.activate("./")
 pkg"add Oceananigans#ss/for-drakkar"
 pkg"add SeawaterPolynomials"
 pkg"add CairoMakie"

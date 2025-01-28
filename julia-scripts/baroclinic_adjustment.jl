@@ -8,6 +8,7 @@
 # First let's make sure we have all required packages installed.
 
 using Pkg
+Pkg.activate("./")
 pkg"add Oceananigans#ss/for-drakkar"
 pkg"add CairoMakie"
 using Oceananigans
