@@ -116,11 +116,6 @@ url = "https://www.dropbox.com/scl/fi/zy1cu64ybn93l67rjgiq0/Downsampled_ETOPO_20
 filename = isfile("Downsampled_ETOPO_2022.nc") ? "Downsampled_ETOPO_2022.nc" : download(url, "Downsampled_ETOPO_2022.nc")
 bottom_height = regrid_bathymetry(grid; minimum_depth=10, major_basins=1, filename, dir="./")
 
-fig = Figure(size = (800, 400))
-ax  = Axis(fig[1, 1])
-heatmap!(ax, Array(interior(bottom_height, :, :, 1)), colormap=:deep)
-display(fig)
-
 grid = ImmersedBoundaryGrid(grid, GridFittedBottom(bottom_height); active_cells_map=true)
 
 # # Configuring an Ocean model
@@ -133,19 +128,19 @@ grid = ImmersedBoundaryGrid(grid, GridFittedBottom(bottom_height); active_cells_
 # Stability in the momentum field is ensured by the WENO method. For the tracer field, since the centered
 # scheme is dispersive, we need to add some explicit diffusion to avoid numerical instabilities.
 
-momentum_advection = WENOVectorInvariant() 
-tracer_advection   = WENO(order=7)
+momentum_advection = WENOVectorInvariant(order=5) 
+tracer_advection   = WENO(order=5)
 
-free_surface = SplitExplicitFreeSurface(grid; substeps=55) 
+free_surface = SplitExplicitFreeSurface(grid; substeps=75) 
 
 # ### Physical parameterizations
 #
 # We add a GM parameterization for mesoscale eddies and a CATKE vertical mixing scheme.
 # All the closures require passing also the desired floating point precision of the model
 
-using Oceananigans.TurbulenceClosures.TKEBasedVerticalDiffusivities: CATKEVerticalDiffusivity
+using Oceananigans.TurbulenceClosures.TKEBasedVerticalDiffusivities: CATKEVerticalDiffusivity, CATKEMixingLength
 
-vertical_mixing = CATKEVerticalDiffusivity() 
+vertical_mixing = CATKEVerticalDiffusivity(mixing_length=CATKEMixingLength(Cᵇ = 0.001)) 
 closure = vertical_mixing
 
 # ### Building the ocean simulation
@@ -164,11 +159,11 @@ ocean = ocean_simulation(grid;
 #
 # We use ECCO climatology to initialize the temperature and salinity fields. 
 # We can use the metadata we defined earlier to set the initial conditions. 
+ 
+temperature = ECCOMetadata(:temperature;  dir="./", version=ClimaOcean.ECCO.ECCO2Daily())
+salinity    = ECCOMetadata(:salinity;     dir="./", version=ClimaOcean.ECCO.ECCO2Daily())
 
-temperature = ECCOMetadata(:temperature; dir="./", version=ClimaOcean.ECCO.ECCO2Daily())
-salinity    = ECCOMetadata(:salinity;    dir="./", version=ClimaOcean.ECCO.ECCO2Daily())
-
-set!(ocean.model, T=temperature, S=salinity) 
+set!(ocean.model, T=temperature, S=salinity)
 
 # # Adding an atmosphere
 #
@@ -194,7 +189,7 @@ radiation = Radiation(ocean_albedo = LatitudeDependentAlbedo())
 # For the moment, the sea-ice component is not implemented, so we will only couple the ocean to the atmosphere.
 # Instead of the sea ice model, we limit the temperature of the ocean to the freezing temperature.
 
-similarity_theory = SimilarityTheoryTurbulentFluxes(grid; maxiter=5)
+similarity_theory = SimilarityTheoryTurbulentFluxes(grid)
 sea_ice = ClimaOcean.FreezingLimitedOceanTemperature()
 earth_model = OceanSeaIceModel(ocean, sea_ice; atmosphere, radiation, similarity_theory)
 
