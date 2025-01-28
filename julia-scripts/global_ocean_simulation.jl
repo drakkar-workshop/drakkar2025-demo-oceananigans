@@ -171,11 +171,10 @@ using Oceananigans.TurbulenceClosures: IsopycnalSkewSymmetricDiffusivity,
 
 using Oceananigans.TurbulenceClosures.TKEBasedVerticalDiffusivities: CATKEVerticalDiffusivity
 
-numerical_closure = HorizontalScalarDiffusivity(ν=5e3)
 eddy_closure = IsopycnalSkewSymmetricDiffusivity(κ_skew=1e3, κ_symmetric=1e3, skew_flux_formulation=DiffusiveFormulation())
 vertical_mixing = CATKEVerticalDiffusivity() 
 
-closure = (eddy_closure, numerical_closure, vertical_mixing) 
+closure = (eddy_closure, vertical_mixing) 
 
 # ### Building the ocean simulation
 # 
@@ -271,8 +270,7 @@ radiation = nothing
 # Instead of the sea ice model, we limit the temperature of the ocean to the freezing temperature.
 
 similarity_theory = SimilarityTheoryTurbulentFluxes(grid; maxiter=5)
-sea_ice = ClimaOcean.FreezingLimitedOceanTemperature()
-earth_model = OceanSeaIceModel(ocean, sea_ice; atmosphere, radiation, similarity_theory)
+earth_model = OceanSeaIceModel(ocean; atmosphere, radiation, similarity_theory)
 
 # ### Building the simulation
 #
