@@ -72,7 +72,7 @@ arch = GPU()
 
 depth = 5000meters
 Nz    = 50
-h     = 10 
+h     = 20 
 
 r_faces = ClimaOcean.exponential_z_faces(; Nz, h, depth)
 
@@ -80,7 +80,7 @@ r_faces = ClimaOcean.exponential_z_faces(; Nz, h, depth)
 # a `StaticVerticalDiscretization`, to set up the data structures required for a free-surface 
 # following vertical coordinate. 
 
-z_faces = MutableVerticalDiscretization(r_faces)
+z_faces = r_faces # MutableVerticalDiscretization(r_faces)
 
 # ## Building a grid
 
@@ -101,9 +101,9 @@ z_faces = MutableVerticalDiscretization(r_faces)
 # We pass to the grid, the architecture, the floating point precision, the size of the grid, and the vertical coordinate.
 
 Nx = 1440 # longitudinal direction -> 1440 points is about 0.25ᵒ resolution
-Ny = 650  # meridional direction -> same thing, 48 points is about 0.25ᵒ resolution
+Ny = 650  # meridional direction -> same thing, 650 points is about 0.25ᵒ resolution
 Nz = length(r_faces) - 1
-grid = TripolarGrid(arch, Float64; size=(Nx, Ny, Nz), z=z_faces, halo=(7, 7, 4))
+grid = TripolarGrid(arch, Float64; size=(Nx, Ny, Nz), z=z_faces, halo=(8, 8, 4))
 
 # ## Adding a bathymetry to the grid
 #
@@ -140,8 +140,7 @@ free_surface = SplitExplicitFreeSurface(grid; substeps=75)
 
 using Oceananigans.TurbulenceClosures.TKEBasedVerticalDiffusivities: CATKEVerticalDiffusivity, CATKEMixingLength
 
-vertical_mixing = CATKEVerticalDiffusivity(mixing_length=CATKEMixingLength(Cᵇ = 0.001)) 
-closure = vertical_mixing
+closure = CATKEVerticalDiffusivity(mixing_length=CATKEMixingLength(Cᵇ = 0.001)) 
 
 # ### Building the ocean simulation
 # 
@@ -189,16 +188,14 @@ radiation = Radiation(ocean_albedo = LatitudeDependentAlbedo())
 # For the moment, the sea-ice component is not implemented, so we will only couple the ocean to the atmosphere.
 # Instead of the sea ice model, we limit the temperature of the ocean to the freezing temperature.
 
-similarity_theory = SimilarityTheoryTurbulentFluxes(grid)
-sea_ice = ClimaOcean.FreezingLimitedOceanTemperature()
-earth_model = OceanSeaIceModel(ocean, sea_ice; atmosphere, radiation, similarity_theory)
+earth_model = OceanSeaIceModel(ocean; atmosphere, radiation)
 
 # ### Building the simulation
 #
 # We build the simulation out of the `earth_model` as we would do for any other Oceananigans model.
 # We start with a smallish time-step (5 minutes) and run only for 2 days to dissipate initialization shocks.
 
-earth = Simulation(earth_model; Δt=2minutes, stop_time=2days)
+earth = Simulation(earth_model; Δt=10minutes, stop_time=2days)
 
 # ### Adding some diagnostics
 #
@@ -261,7 +258,7 @@ run!(earth)
 
 # Finished the two days, we increase timestep size and stop time and restart
 
-earth.stop_time = 60days
+earth.stop_time = 30days
 earth.Δt = 10minutes
 
 run!(earth)
